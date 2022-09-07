@@ -2,26 +2,26 @@ Package: kflow
 Title: Functions for Interacting with Kubeflow from R
 Version: 0.1.0
 Authors@R: 
-    person(given = "Nick",
-           family = "DiQuattro",
-           role = c("aut", "cre"),
-           email = "ndiquattro@gmail.com")
-Description: Convenience functions for writing R code that works in a Kubeflow environment.
+    person("Nick", "DiQuattro", , "ndiquattro@gmail.com", role = c("aut", "cre"))
+Description: Convenience functions for writing R code that works in a
+    Kubeflow environment.
 License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: true
 URL: https://github.com/ndiquattro/kflow
 BugReports: https://github.com/ndiquattro/kflow/issues
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.0.2
 Imports: 
+    dplyr,
     fs,
-    readr,
     jsonlite,
     magrittr,
-    methods,
-    stringr,
     purrr,
+    readr,
+    rlang,
+    stringr,
+    tibble,
     yaml
 Suggests: 
     testthat (>= 2.1.0)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
