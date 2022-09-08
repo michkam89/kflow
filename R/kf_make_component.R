@@ -14,6 +14,7 @@
 #' * `_int` = Integer
 #' * `_bool` = Bool
 #' * `_float` = Float
+#' * #TODO add support for List and Dict
 #'
 #' Outputs
 #' * `_out` = outputPath
@@ -55,13 +56,14 @@ kf_make_component <- function(rfunction, name, description, image, file) {
   # Parse out Input/Output args
   fun_args <- formals(rfunction)
 
-  input_args <- fun_args[grep(x = names(fun_args), pattern = "(_string|_stringPath|_int|_bool|_float)$")]
+  input_args <- fun_args[grep(x = names(fun_args), pattern = "(_string|_path|_int|_bool|_float)$")]
 
   #input_args <- purrr::keep(fun_args, stringr::str_ends, pattern = "_string|_stringPath|_int|_bool|_float")
 
   output_args <- fun_args[grep(x = names(fun_args), pattern = "(_out|_metrics|_uimeta)$")]
 
   #output_args <- purrr::keep(fun_args, stringr::str_ends, pattern = "_out|_metrics|_uimeta")
+
 
   # Write Input/Output args
   yaml_base$inputs <- purrr::map2(
@@ -70,10 +72,11 @@ kf_make_component <- function(rfunction, name, description, image, file) {
     ~ list(
       name = .x,
       type = find_kf_type(.x),
-      default = find_arg_defaults(.y),
+      default = find_arg_defaults(arg_name = .x, arg_value = .y),
       optional = is_arg_optional(.y)
       )
     )
+  # %>% purrr::map(~purrr::modify_if(.x = ., .p = is.na, .f = as.null))
 
   yaml_base$outputs <- purrr::map(
     names(output_args),
@@ -107,23 +110,9 @@ kf_make_component <- function(rfunction, name, description, image, file) {
   )
 
   if (missing(file)) {
+    yaml::as.yaml(yaml_base) |> cat(sep = "\n")
     return(yaml::as.yaml(yaml_base))
   }
 
   yaml::write_yaml(yaml_base, file)
-}
-
-name_fixer <- function(x) {
-  x_stub <- stringr::str_extract(x, "[^_]+$")
-  # When argument ends in "_metrics":
-  if (x_stub == "metrics") {
-    return("mlpipeline_metrics")
-  }
-
-  # When argument ends in "_uimeta":
-  if (x_stub == "uimeta") {
-    return("mlpipeline_ui_metadata")
-  }
-
-  x
 }

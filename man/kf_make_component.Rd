@@ -37,6 +37,7 @@ Inputs
 \item \verb{_int} = Integer
 \item \verb{_bool} = Bool
 \item \verb{_float} = Float
+\item #TODO add support for List and Dict
 }
 
 Outputs

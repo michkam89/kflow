@@ -9,7 +9,6 @@ License: MIT + file LICENSE
 URL: https://github.com/ndiquattro/kflow
 BugReports: https://github.com/ndiquattro/kflow/issues
 Imports: 
-    dplyr,
     fs,
     jsonlite,
     magrittr,
@@ -17,7 +16,6 @@ Imports:
     readr,
     rlang,
     stringr,
-    tibble,
     yaml
 Suggests: 
     testthat (>= 2.1.0)
