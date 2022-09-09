@@ -9,12 +9,15 @@
 #' input String. Output paths are identified by ending in `_out`. Supported
 #' translations are:
 #'
-#' Inputs
+#' Inputs (inputValue)
 #' * `_string` = String
 #' * `_int` = Integer
 #' * `_bool` = Bool
 #' * `_float` = Float
 #' * #TODO add support for List and Dict
+#'
+#' Inputs (inputPath)
+#' * `_path` = String
 #'
 #' Outputs
 #' * `_out` = outputPath
@@ -51,18 +54,21 @@ kf_make_component <- function(rfunction, name, description, image, file) {
     )
 
   # Parse Function Name
-  #rfun <- stringr::str_split(rfunction, "::", simplify = TRUE)
+  rfun <- stringr::str_split(rfunction, "::", simplify = TRUE)
 
   # Parse out Input/Output args
-  fun_args <- formals(rfunction)
+  fun_args <- formals(rfun[ncol(rfun)])
 
-  input_args <- fun_args[grep(x = names(fun_args), pattern = "(_string|_path|_int|_bool|_float)$")]
+  input_args <-
+    fun_args[grep(
+      x = names(fun_args),
+      pattern = "(_string|_path|_int|_bool|_float)$"
+      )]
 
-  #input_args <- purrr::keep(fun_args, stringr::str_ends, pattern = "_string|_stringPath|_int|_bool|_float")
-
-  output_args <- fun_args[grep(x = names(fun_args), pattern = "(_out|_metrics|_uimeta)$")]
-
-  #output_args <- purrr::keep(fun_args, stringr::str_ends, pattern = "_out|_metrics|_uimeta")
+  output_args <- fun_args[grep(
+    x = names(fun_args),
+    pattern = "(_out|_metrics|_uimeta)$"
+    )]
 
 
   # Write Input/Output args
@@ -72,11 +78,13 @@ kf_make_component <- function(rfunction, name, description, image, file) {
     ~ list(
       name = .x,
       type = find_kf_type(.x),
-      default = find_arg_defaults(arg_name = .x, arg_value = .y),
+      default = find_arg_defaults(
+        arg_name = .x,
+        arg_value = .y
+        ),
       optional = is_arg_optional(.y)
       )
     )
-  # %>% purrr::map(~purrr::modify_if(.x = ., .p = is.na, .f = as.null))
 
   yaml_base$outputs <- purrr::map(
     names(output_args),
@@ -91,7 +99,7 @@ kf_make_component <- function(rfunction, name, description, image, file) {
   # Write Implementation Args
   yaml_base$implementation$container$args <- purrr::map(
     names(fun_args),
-    ~as.list(
+    ~ as.list(
       setNames(
         object = name_fixer(.),
         nm = find_arg_type(.)
@@ -106,11 +114,10 @@ kf_make_component <- function(rfunction, name, description, image, file) {
   yaml_base$implementation$container$command <- list(
     "Rscript",
     "-e", 'args<-commandArgs(trailingOnly=TRUE)',
-    "-e", paste0(rfunction, '(', arg_calls, ")")
+    "-e", paste0(paste(rfun, collapse = "::"), '(', arg_calls, ")")
   )
 
   if (missing(file)) {
-    yaml::as.yaml(yaml_base) |> cat(sep = "\n")
     return(yaml::as.yaml(yaml_base))
   }
 

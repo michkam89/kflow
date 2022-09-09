@@ -14,6 +14,38 @@ test_that("File is written", {
   expect_true(file.exists(tfile))
 })
 
+test_that("file is written when function comes from loaded package", {
+
+  tmp_dir <- tempdir()
+  withr::defer(fs::dir_delete(tmp_dir))
+
+  usethis::ui_silence(usethis::create_package(tmp_dir, open = FALSE))
+
+  withr::with_dir(
+    tmp_dir,
+    {
+
+      fun <- c("comp_fun1 <- function(location_string,location2_path,count_int,",
+               "weight_float,flag_bool,path_metrics,path_uimeta,results_out) {",
+               "2 * 2}")
+
+      writeLines(fun, con = "R/foo.R", sep = "\n")
+
+      devtools::load_all()
+      kf_make_component(
+        rfunction = "comp_fun1",
+        name = "Test Function",
+        description = "A function for testing",
+        image = "docker/docker",
+        file = "component.yaml"
+      )
+
+      expect_true(fs::file_exists("component.yaml"))
+    })
+
+
+})
+
 ##### TEST STRING INPUTS -------------------------------------------------------
 
 test_that("'_string' is parsed correctly", {
