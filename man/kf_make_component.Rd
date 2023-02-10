@@ -31,7 +31,7 @@ determine the type. For example, \code{table_name_string} would be considered an
 input String. Output paths are identified by ending in \verb{_out}. Supported
 translations are:
 
-Inputs (inputValue)
+Inputs (inputValue type)
 \itemize{
 \item \verb{_string} = String
 \item \verb{_int} = Integer
@@ -40,7 +40,7 @@ Inputs (inputValue)
 \item #TODO add support for List and Dict
 }
 
-Inputs (inputPath)
+Inputs (inputPath type) - useful for passing data between components
 \itemize{
 \item \verb{_path} = String
 }

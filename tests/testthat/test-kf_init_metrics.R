@@ -9,6 +9,14 @@ test_that("Custom class is applied correctly", {
 
 test_that("Print methods respond correctly", {
 
-  expect_output(print(test_mets, pretty = FALSE), '{"metrics":[]}', fixed = TRUE)
-  expect_output(print(test_mets, preview = FALSE), "$metrics\nlist()", fixed = TRUE)
+  expect_output(
+    print(test_mets, pretty = FALSE),
+    '{"metrics":[]}',
+    fixed = TRUE
+    )
+  expect_output(
+    print(test_mets, preview = FALSE),
+    "$metrics\nlist()",
+    fixed = TRUE
+    )
 })

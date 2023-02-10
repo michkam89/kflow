@@ -9,14 +9,14 @@
 #' input String. Output paths are identified by ending in `_out`. Supported
 #' translations are:
 #'
-#' Inputs (inputValue)
+#' Inputs (inputValue type)
 #' * `_string` = String
 #' * `_int` = Integer
 #' * `_bool` = Bool
 #' * `_float` = Float
 #' * #TODO add support for List and Dict
 #'
-#' Inputs (inputPath)
+#' Inputs (inputPath type) - useful for passing data between components
 #' * `_path` = String
 #'
 #' Outputs

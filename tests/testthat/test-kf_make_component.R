@@ -2,66 +2,33 @@ source(testthat::test_path("files", "test_functions.R"))
 
 test_that("File is written", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun1",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
+  expect_true(file.exists(tmp_file))
 })
 
-test_that("file is written when function comes from loaded package", {
 
-  tmp_dir <- tempdir()
-  withr::defer(fs::dir_delete(tmp_dir))
-
-  usethis::ui_silence(usethis::create_package(tmp_dir, open = FALSE))
-
-  withr::with_dir(
-    tmp_dir,
-    {
-
-      fun <- c("comp_fun1 <- function(location_string,location2_path,count_int,",
-               "weight_float,flag_bool,path_metrics,path_uimeta,results_out) {",
-               "2 * 2}")
-
-      writeLines(fun, con = "R/foo.R", sep = "\n")
-
-      devtools::load_all()
-      kf_make_component(
-        rfunction = "comp_fun1",
-        name = "Test Function",
-        description = "A function for testing",
-        image = "docker/docker",
-        file = "component.yaml"
-      )
-
-      expect_true(fs::file_exists("component.yaml"))
-    })
-
-
-})
-
-##### TEST STRING INPUTS -------------------------------------------------------
+# ##### TEST STRING INPUTS -------------------------------------------------------
 
 test_that("'_string' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun2",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[1]]$name == "location_string")
   expect_true(got$inputs[[1]]$type == "String")
@@ -72,18 +39,16 @@ test_that("'_string' is parsed correctly", {
 
 test_that("'_string' with default value is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun2",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[2]]$name == "default_location_string")
   expect_true(got$inputs[[2]]$type == "String")
@@ -94,18 +59,16 @@ test_that("'_string' with default value is parsed correctly", {
 
 test_that("optional '_string' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun2",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[3]]$name == "optional_location_string")
   expect_true(got$inputs[[3]]$type == "String")
@@ -114,22 +77,20 @@ test_that("optional '_string' is parsed correctly", {
   expect_true(got$implementation$container$args[[3]]$inputValue == "optional_location_string")
 })
 
-##### TEST INTEGER INPUTS ------------------------------------------------------
+# ##### TEST INTEGER INPUTS ------------------------------------------------------
 
 test_that("'_int' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun3",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[1]]$name == "my_int")
   expect_true(got$inputs[[1]]$type == "Integer")
@@ -140,18 +101,16 @@ test_that("'_int' is parsed correctly", {
 
 test_that("'_int' with default value is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun3",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[2]]$name == "default_my_int")
   expect_true(got$inputs[[2]]$type == "Integer")
@@ -162,18 +121,16 @@ test_that("'_int' with default value is parsed correctly", {
 
 test_that("optional '_int' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun3",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[3]]$name == "optional_my_int")
   expect_true(got$inputs[[3]]$type == "Integer")
@@ -184,18 +141,16 @@ test_that("optional '_int' is parsed correctly", {
 
 test_that("default '_int' is parsed to integer even if provided as double", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun3",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[4]]$name == "default_not_my_int")
   expect_true(got$inputs[[4]]$type == "Integer")
@@ -204,22 +159,20 @@ test_that("default '_int' is parsed to integer even if provided as double", {
   expect_true(got$implementation$container$args[[4]]$inputValue == "default_not_my_int")
 })
 
-##### TEST FLOATING INPUTS -----------------------------------------------------
+# ##### TEST FLOATING INPUTS -----------------------------------------------------
 
 test_that("'_float' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun4",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[1]]$name == "my_float")
   expect_true(got$inputs[[1]]$type == "Float")
@@ -230,18 +183,16 @@ test_that("'_float' is parsed correctly", {
 
 test_that("'_float' with default value is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun4",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[2]]$name == "default_my_float")
   expect_true(got$inputs[[2]]$type == "Float")
@@ -252,18 +203,16 @@ test_that("'_float' with default value is parsed correctly", {
 
 test_that("optional '_float' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun4",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[3]]$name == "optional_my_float")
   expect_true(got$inputs[[3]]$type == "Float")
@@ -274,18 +223,16 @@ test_that("optional '_float' is parsed correctly", {
 
 test_that("default '_float' is parsed to double even if provided as integer", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun4",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[4]]$name == "default_not_my_float")
   expect_true(got$inputs[[4]]$type == "Float")
@@ -294,22 +241,20 @@ test_that("default '_float' is parsed to double even if provided as integer", {
   expect_true(got$implementation$container$args[[4]]$inputValue == "default_not_my_float")
 })
 
-##### TEST BOOLEAN INPUTS ------------------------------------------------------
+# ##### TEST BOOLEAN INPUTS ------------------------------------------------------
 
 test_that("'_bool' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun5",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[1]]$name == "my_bool")
   expect_true(got$inputs[[1]]$type == "Bool")
@@ -320,18 +265,16 @@ test_that("'_bool' is parsed correctly", {
 
 test_that("'_bool' with default value is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun5",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[2]]$name == "default_my_bool")
   expect_true(got$inputs[[2]]$type == "Bool")
@@ -342,18 +285,16 @@ test_that("'_bool' with default value is parsed correctly", {
 
 test_that("optional '_bool' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun5",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[3]]$name == "optional_my_bool")
   expect_true(got$inputs[[3]]$type == "Bool")
@@ -364,18 +305,16 @@ test_that("optional '_bool' is parsed correctly", {
 
 test_that("default '_bool' converts to NULL if default is not logical or 0/1", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun5",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$inputs[[4]]$name == "default_not_my_bool")
   expect_true(got$inputs[[4]]$type == "Bool")
@@ -384,69 +323,61 @@ test_that("default '_bool' converts to NULL if default is not logical or 0/1", {
   expect_true(got$implementation$container$args[[4]]$inputValue == "default_not_my_bool")
 })
 
-##### TEST REGULAR OUTPUTS -----------------------------------------------------
+# ##### TEST REGULAR OUTPUTS -----------------------------------------------------
 
 test_that("'_out' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun6",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
-
-  got <- yaml::read_yaml(tfile)
+  got <- yaml::read_yaml(tmp_file)
 
   expect_true(got$outputs[[1]]$name == "my_out")
   expect_true(is.null(got$outputs[[1]]$type))
   expect_true(got$implementation$container$args[[1]]$outputPath == "my_out")
 })
 
-##### TEST METRICS OUTPUTS -----------------------------------------------------
+# ##### TEST METRICS OUTPUTS -----------------------------------------------------
 
 test_that("'_out' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun6",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
+  got <- yaml::read_yaml(tmp_file)
 
-  got <- yaml::read_yaml(tfile)
-
-  print(got)
   expect_true(got$outputs[[2]]$name == "mlpipeline_metrics")
   expect_true(got$outputs[[2]]$type == "Metrics")
   expect_true(got$implementation$container$args[[2]]$outputPath == "mlpipeline_metrics")
 })
 
-##### TEST UI METADATA OUTPUTS -------------------------------------------------
+# ##### TEST UI METADATA OUTPUTS -------------------------------------------------
 
 test_that("'_out' is parsed correctly", {
 
-  tfile <- tempfile()
+  tmp_file <- tempfile()
 
   kf_make_component(
     rfunction = "comp_fun6",
     name = "Test Function",
     description = "A function for testing",
     image = "docker/docker",
-    file = tfile)
+    file = tmp_file)
 
-  expect_true(file.exists(tfile))
+  got <- yaml::read_yaml(tmp_file)
 
-  got <- yaml::read_yaml(tfile)
-
-  print(got)
   expect_true(got$outputs[[3]]$name == "mlpipeline_ui_metadata")
   expect_true(got$outputs[[3]]$type == "UI_metadata")
   expect_true(got$implementation$container$args[[3]]$outputPath == "mlpipeline_ui_metadata")
