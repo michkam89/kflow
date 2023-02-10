@@ -9,11 +9,15 @@
 #' input String. Output paths are identified by ending in `_out`. Supported
 #' translations are:
 #'
-#' Inputs
+#' Inputs (inputValue type)
 #' * `_string` = String
 #' * `_int` = Integer
 #' * `_bool` = Bool
 #' * `_float` = Float
+#' * #TODO add support for List and Dict
+#'
+#' Inputs (inputPath type) - useful for passing data between components
+#' * `_path` = String
 #'
 #' Outputs
 #' * `_out` = outputPath
@@ -53,21 +57,60 @@ kf_make_component <- function(rfunction, name, description, image, file) {
   rfun <- stringr::str_split(rfunction, "::", simplify = TRUE)
 
   # Parse out Input/Output args
-  fun_args <- methods::formalArgs(rfun[ncol(rfun)])
-  input_args <- purrr::keep(fun_args, stringr::str_ends, pattern = "_string|_int|_bool|_float")
-  output_args <- purrr::keep(fun_args, stringr::str_ends, pattern = "_out|_metrics|_uimeta")
+  fun_args <- formals(rfun[ncol(rfun)])
+
+  input_args <-
+    fun_args[grep(
+      x = names(fun_args),
+      pattern = "(_string|_path|_int|_bool|_float)$"
+      )]
+
+  output_args <- fun_args[grep(
+    x = names(fun_args),
+    pattern = "(_out|_metrics|_uimeta)$"
+    )]
+
 
   # Write Input/Output args
-  yaml_base$inputs <- purrr::map(input_args, ~list(name = ., type = find_kf_type(.)))
-  yaml_base$outputs <- purrr::map(output_args, ~list(name = name_fixer(.), type = find_kf_type(.)))
+  yaml_base$inputs <- purrr::map2(
+    names(input_args),
+    input_args,
+    ~ list(
+      name = .x,
+      type = find_kf_type(.x),
+      default = find_arg_defaults(
+        arg_name = .x,
+        arg_value = .y
+        ),
+      optional = is_arg_optional(.y)
+      )
+    )
+
+  yaml_base$outputs <- purrr::map(
+    names(output_args),
+    ~list(
+      name = name_fixer(.),
+      type = find_kf_type(.)
+      )
+    )
 
   # Rename metrics/ui outputs
 
   # Write Implementation Args
-  yaml_base$implementation$container$args <- purrr::map(fun_args, ~as.list(setNames(name_fixer(.), find_arg_type(.))))
+  yaml_base$implementation$container$args <- purrr::map(
+    names(fun_args),
+    ~ as.list(
+      setNames(
+        object = name_fixer(.),
+        nm = find_arg_type(.)
+        )
+      )
+    )
+
 
   # Write Function Call
   arg_calls <- paste0("args[", 1:length(fun_args), "]", collapse = ",")
+
   yaml_base$implementation$container$command <- list(
     "Rscript",
     "-e", 'args<-commandArgs(trailingOnly=TRUE)',
@@ -79,19 +122,4 @@ kf_make_component <- function(rfunction, name, description, image, file) {
   }
 
   yaml::write_yaml(yaml_base, file)
-}
-
-name_fixer <- function(x) {
-  x_stub <- stringr::str_extract(x, "[^_]+$")
-  # When argument ends in "_metrics":
-  if (x_stub == "metrics") {
-    return("mlpipeline_metrics")
-  }
-
-  # When argument ends in "_uimeta":
-  if (x_stub == "uimeta") {
-    return("mlpipeline_ui_metadata")
-  }
-
-  x
 }

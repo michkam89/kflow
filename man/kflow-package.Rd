@@ -19,5 +19,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Nick DiQuattro \email{ndiquattro@gmail.com}
 
+Other contributors:
+\itemize{
+  \item Michał Kamiński [contributor]
+}
+
 }
 \keyword{internal}
